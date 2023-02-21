@@ -1,5 +1,7 @@
 import jwt_decode from "jwt-decode";
-import api from "../services/index";
+import {$axios} from "../services/index";
+import userapi from "../services/user";
+import {router} from "../router/index.js";
 
 export default {
     state() {
@@ -25,12 +27,13 @@ export default {
         }
     },
     actions: {
-        onLogin({commit}, {login, password}) {
-            api.login({login, password}).then((res) => {
-                let decode = jwt_decode(res);
-                commit('setToken', res.access);
-                commit('setUserId', decode.user_id);
-            })
+        onLogin({commit}, {username, password}) {
+            return userapi.login({username, password}).then((res) => {
+                commit('setToken', res.data.access);
+                commit('setUserId', res.data.user_id);
+                $axios.defaults.headers['authorization'] = `Bearer ${res.data.access}`;
+                router.push({name: 'home'});
+            });
         },
 
         onLogout({ commit }) {
@@ -38,6 +41,8 @@ export default {
             commit('setUserId', null);
             localStorage.removeItem('token');
             localStorage.removeItem('user_id');
+            router.push({name: 'signin'});
+            delete $axios.defaults.headers['authorization'];
         }
     }
 }

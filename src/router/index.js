@@ -3,8 +3,23 @@ import {
     createWebHistory
 } from 'vue-router';
 
-import Signin from "../pages/Signin.vue";
-import Home from "../pages/Home.vue";
+const isAuth = localStorage.hasOwnProperty('token')
+
+function authGuard(to, from ,next) {
+    if (!isAuth) {
+        next({ name: 'signin' })
+    } else {
+        next()
+    }
+}
+
+function noAuthGuard(to, from ,next) {
+    if (isAuth) {
+        next({ name: 'home' })
+    } else {
+        next()
+    }
+}
 
 const routes = [
     {
@@ -12,14 +27,34 @@ const routes = [
         redirect: "/"
     },
     {
-        path: "/signin",
-        name: "signin",
-        component: Signin
-    },
-    {
         path: "/",
         name: "home",
-        component: Home
+        component: () => import("../pages/Home.vue")
+    },
+    {
+        path: "/signin",
+        name: "signin",
+        component: () => import("../pages/Signin.vue")
+    },
+    {
+        path: "/signup",
+        name: "signup",
+        component: () => import("../pages/Signup.vue")
+    },
+    {
+        path: "/order",
+        name: "order",
+        component: () => import("../pages/Order.vue")
+    },
+    {
+        path: "/schedule",
+        name: "schedule",
+        component: () => import("../pages/Chedule.vue")
+    },
+    {
+        path: "/profile",
+        name: "profile",
+        component: () => import("../pages/Profile.vue")
     }
 ];
 
